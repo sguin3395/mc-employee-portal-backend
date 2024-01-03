@@ -9,7 +9,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "bcrypt": "^5.1.1",
     "express": "^4.18.2",
+    "firebase": "^10.7.1",
     "firebase-admin": "^12.0.0",
     "heroku": "^8.7.1"
   }

@@ -1,4 +1,5 @@
 const express = require('express');
+const employees = require('./db/firestore');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -7,15 +8,8 @@ app.use(express.json());
 
 app.get('/employees', async (req, res) => {
     try {
-        const snapshot = await db.collection('employees').get();
-        const data = snapshot.docs.map(doc => {
-            return {
-                UserId: doc.id,
-                UserInfo: doc.data()
-            }
-        });
-
-        res.json(data);
+        const data = await employees.getAllEmployees();
+        res.status(200).json(data);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -25,20 +19,44 @@ app.get('/employees', async (req, res) => {
 app.get('/employees/:id', async (req, res) => {
     try {
         const employeeId = req.params.id;
-        const snapshot = await db.collection('employees').get();
-          const data = snapshot.docs.map(doc => {
-            if(doc.data().find(user => user.EmployeeId === employeeId)){
-                
-            }
-          });
-        console.log(employeeId);
-
-        res.json(data);
+        const data = await employees.getEmployeeById(employeeId);
+        res.status(200).json(data);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+app.post('/login', async (req,res) => {
+    try {
+        const { email, password } = req.body;
+        const data = await employees.signIn(email, password);
+        res.status(200).send(data);
+    }catch (error){
+        console.log(error);
+        res.status(500).send({ error: 'Internal Server Error' })
+    }
+})
+
+app.post('/addUserWithCredentials', async (req,res) => {
+    try {
+        const { email, password, phoneNumber } = req.body;
+        const data = await employees.signUpUser(email, password, phoneNumber);
+        res.status(200).send(data);
+    }catch (error){
+        console.log(error);
+        res.status(500).send({ error: 'Internal Server Error' })
+    }
+});
+
+app.post('/addEmployee', async (req, res) => {
+    try {
+        const newEmployee = req.body;
+    }catch (error){
+        console.log(error);
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
+})
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
