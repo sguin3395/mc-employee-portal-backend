@@ -6,6 +6,16 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
+app.get('/', async (req, res) => {
+    try {
+        const data = await employees.getAllEmployees();
+        res.status(200).json(data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 app.get('/employees', async (req, res) => {
     try {
         const data = await employees.getAllEmployees();
