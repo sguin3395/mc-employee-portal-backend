@@ -29,8 +29,8 @@ app.get('/employees', async (req, res) => {
 app.get('/employees/:id', async (req, res) => {
     try {
         const employeeId = req.params.id;
-        const data = await employees.getEmployeeById(employeeId)[0];
-        res.status(200).json(data);
+        const data = await employees.getEmployeeById(employeeId);
+        res.status(200).json(data[0]);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
