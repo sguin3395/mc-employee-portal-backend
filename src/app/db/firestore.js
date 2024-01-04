@@ -29,13 +29,17 @@ async function getAllEmployees() {
 // Function to get a specific employee by ID
 async function getEmployeeById(employeeId) {
   try {
-    console.log(employeeId);
-    const snapshot = await db.collection('employees').where('EmployeeId', '==', employeeId).get();
-    console.log(snapshot);
-    const data = snapshot.docs.map(doc => ({
-      UserId: doc.id,
-      UserInfo: doc.data()
-    }));
+    // console.log(employeeId);
+    const collectionRef = db.collection('employees');
+    const snapshot = await collectionRef.where('EmployeeId', '==', Number(employeeId)).get();
+    // console.log(snapshot);
+
+    if (snapshot.empty) {
+      console.log("No matching doc");
+    }
+
+    const data = [];
+    snapshot.forEach(doc => data.push(doc.data()));
 
     return data;
   } catch (error) {
@@ -113,10 +117,52 @@ async function registerUser(employeeData) {
   }
 }
 
+async function getLeaveDataByUserId(employeeId) {
+  try {
+    const collectionRef = db.collection('leave-data');
+    const snapshot = await collectionRef.where('EmployeeId', '==', Number(employeeId)).get();
+
+    const data = [];
+
+    if (snapshot.empty) {
+      console.log("No matching doc");
+      return;
+    }
+
+    snapshot.forEach(doc => data.push(doc.data()));
+
+    return data;
+  } catch (error) {
+    console.error('Error featching leave data for the user:', error);
+    throw error;
+  }
+}
+
+async function registerUser(employeeData) {
+  try {
+    const userId = employeeData.UserInfo.UserId;
+    const employeeId = employeeData.UserInfo.EmployeeId;
+
+    // Use the EmployeeId as the document ID
+    const userRef = db.collection('employees').doc(employeeId.toString());
+
+    // Set the user data in Firestore
+    await userRef.set(employeeData.UserInfo);
+
+    console.log(`Successfully registered user with ID ${userId}`);
+
+    return userId;
+  } catch (error) {
+    console.error('Error registering user:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   getAllEmployees,
   getEmployeeById,
   signIn,
   signUpUser,
-  registerUser
+  registerUser,
+  getLeaveDataByUserId
 };
